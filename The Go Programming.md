@@ -149,3 +149,107 @@
     fmt.Println(x, y)
   }
   ```
+
+### Basic Data Types
+
+There are 4 categories:
+
+- basic types: numbers, strings and booleans.
+- aggregrate types: arrays and structs.
+- reference types: pointers, slices, maps, functions and channels.
+- interface types.
+
+#### Integers & Float-Point Numbers & Complex Numbers & Booleans
+
+- `rune` type is a synonym for `int32` which is used for Unicode code point.
+- sign of remainder is always the same sign as the dividend.
+  ```go
+  -5 % 3 == -5 % -3     // -2
+  ```
+- overflow happens when the result of an arithmetic operation (signed and unsigned) has more bits than can be presented in the result type. The high order bits which do not fit are silently discard.
+  ```go
+  var u uint8 = 255;
+  fmt.Println(u, u + 1, u *u)   // 255, 0, 1
+  ----
+  var i int8 = 127
+  fmt.Println(i, i + 1, i * i)  // 127, -128, 1
+  ```
+- left/right shifts (unsigned numbers) and left shifts (signed numbers) fill the vacated bits with zero, while right shifts (signed numbers) fill the vacated bits with copies of the sign bit.
+- why the builtin `len` function returns `int` instead of `uint` despite it never be negative. The reason is, `len` is usually used in loop and if its type is `uint` the condition `i >= 0` is always true (when i == 0, next i-- turns i to maximum integer number).
+- float to integer is implement-dependent if value is out of range for the target.
+  ```go
+  f := 1e100    // a float64
+  i := int(f)   // implement-dependent
+  ```
+
+#### Strings
+
+- a string is an immutable sequence of bytes (can contain bytes with value 0).
+- index operator `s[i]` retrieves the i-th byte of string `s` not i-th character of a string (UTF-8 encoding of a non-ASCII code point requires two or more bytes).
+- string comparision operators like `==`, `<` is done byte by byte.
+- string values are immutable
+  ```go
+  s := "left foot"
+  t := s
+  s += ", right foot"   // new string
+  s[0] = "L"            // compile error
+  ```
+  ![string](https://i.imgur.com/dIX2jOX.png)
+  ```go
+  s := "hello, world"
+  hello := s[:5]
+  world := s[7:]
+  ```
+- Go source files always encoded in UTF-8 and text strings are interpreted as UTF-8.
+  | Format | Range | |
+  | ------------------------------------- | :------------: | ----: |
+  | `0xxxxxxx` | runes 0-127 | ASCII |
+  | `110xxxxx 10xxxxxx` | 128-2047 | |
+  | `1110xxxx 10xxxxxx 10xxxxxx` | 2048-65523 | |
+  | `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx` | 65536-0x10ffff | |
+- we need to use other mechanisms to handle individual Unicode characters.
+  ![unicode](https://i.imgur.com/fLlmmWt.png)
+  ```go
+  import "unicode/utf8"
+  s := "Hello, Image"
+  fmt.Println(len(s))                    // "13"
+  fmt.Println(utf8.RuneCountInString(s)) // "9"
+  ```
+- each time a UTF-8 decoder, explicit in a call to `utf8.DecodeRuneInString` or implicit in a range loop, consumes an unexpected input byte, it generates a special Unicode replacement character `'\uFFFD'`.
+- if a slice of runes is converted to a string, it produces the concatenation of the UTF-8 encoding of each runes.
+  ```go
+  fmt.Println(string(65))     // "A", not "65"
+  fmt.Println(string(0x4eac)) // valid unicode
+  fmt.Println(string(1234567)) // invalid unicode, the replacement character is substituted
+  ```
+- a string contains an array of bytes, once it is created, it is immutable while elements of a byte slice can be freely modified.
+
+#### Constants
+
+- constants are expressions whose value is known to the compiler and whose evaluation is guaranteed to occur at compile time.
+- basic constant types: boolean, string or number.
+- results of all arithmetic, logical and comparsion operations applied to constant operands are constants (same for builtin functions such as `len`, `cap`, `real`, `imag`, `complex`, and `unsafe.Sizeof`).
+- when a sequence of constants is declared as a group, the right-hand side expression may be omitted for all but the first of the group.
+  ```go
+  const (
+    a = 1
+    b
+    c = 2
+    d
+  )
+  fmt.Printf(a, b, c, d)    // 1, 1, 2, 2
+  ```
+- only constants can be untyped (delay type evaluation). When an untype constant is assigned to a variable, it is implicitly converted to the type of that varable if possible.
+  ```go
+  var f float64 = 3 + 0i // untyped complex -> float64
+  f = 2                  // untyped integer -> float64
+  f = 1e123              // untyped floating-point -> float64
+  f = 'a'                // untyped rune -> float64
+  ```
+- untyped integers are converted to `int`, whose size is not guaranteed, but untyped floating-point and complex numbers are converted to explicitly sized type `float64` and `complex128` (language has no unsized `float` and `complex` because it is very difficult to write correct numerical algorithms without knowing the size of floating-point data types).
+  ```go
+  i := 0      // untyped integer;        implicit int(0)
+  r := '\000' // untyped rune;           implicit rune('\000')
+  f := 0.0    // untyped floating-point; implicit float64(0.0)
+  c := 0i     // untyped complex;        implicit complex128(0i)
+  ```
