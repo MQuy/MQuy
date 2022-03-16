@@ -253,3 +253,111 @@ There are 4 categories:
   f := 0.0    // untyped floating-point; implicit float64(0.0)
   c := 0i     // untyped complex;        implicit complex128(0i)
   ```
+
+### Composite Types
+
+#### Arrays
+
+- an array is a fixed-length sequence of zero or more elements of a particular type.
+  ```go
+  var q [3]int = [3]int{1, 2, 3}
+  q := [...]int{1, 2, 3}
+  ```
+- if an array's element type is comparable then the array type is comparable too
+  ```go
+  a := [2]int{1, 2}
+  b := [...]int{1, 2}
+  c := [2]{1, 3}
+  fmt.Println(a == b, a == c, b == c) // true false false
+  d := [3]{1, 2}      // {1, 2, 0}
+  fmt.Println(a == d) // compile error
+  ```
+- function call is "pass by value", it means passing large arrays is inefficient.
+
+#### Slices
+
+- a slice represents a variable-length sequence whose elements all have the same type.
+- slice is similar to Rust `Vec`.
+  ![represent](https://i.imgur.com/7OJxKCQ.png)
+- for both string and slice, using `x[m:n]` return a subsequence sharing the underlying representation of the original.
+  ```go
+  s := []int{0, 1, 2, 3, 4, 5}  // s is a slice
+  ```
+- unlike arrays, slices are not comparable (cannot use `==`).
+- unless clearly documented, otherwise, Go functions should treat all zero-length slices the same way whether nil or non-nil.
+  ```go
+  var s []int    // len(s) == 0, s == nil
+  s = nil        // len(s) == 0, s == nil
+  s = []int(nil) // len(s) == 0, s == nil
+  s = []int{}    // len(s) == 0, s != nil
+  ```
+
+#### Maps
+
+- a map is a hash table.
+  ```go
+  ages := map[string]int {
+    "alice": 31,
+    "charlie": 34,
+  }
+  ```
+- if a key is not present, lookup returns the zero value of its type.
+- we cannot take a map element's address because growing a map causes rehashing of existing elements into new storage locations.
+  ```go
+  _ = &age["alice"]     // compile error
+  ```
+- the order of map iteration is unspecified. In practice, the order is random, varying from one execution to the next (force program to not rely on the order).
+- like slices, most of operations on maps are safe to perform on a nil map reference (same as empty map).
+  ```go
+  age, ok := ages["bob"]  // ok == true if ages contains bob key, otherwise, ok == false
+  ```
+- unlike slices, maps cannot be compared to each other.
+
+#### Structs
+
+- field order is significant to type identify.
+  ```go
+  type X struct {
+    Id int
+    Name string
+  }
+  // !=
+  type X struct {
+    Name string
+    Id int
+  }
+  ```
+- there are two forms of struct literal (two forms cannot be mixed)
+  ```go
+  type Point struct { X, Y int }
+  p := Point{1, 2}    // every field has to be in the right order.
+  p := Point{X = 1}   // omitted fields are assigned to zero of their type.
+  ```
+- two structs are comparable if all fields are comparable.
+  ```go
+  type Point struct { X, Y int }
+  p1 := Point{1, 2}
+  p2 := Point{2, 1}
+  fmt.Println(p1 == p2)   // false
+  ```
+- similar to C, anonymous embed struct allows us to shorthand accessing
+  ```go
+  type Point struct { X, Y int }
+  type Circle struct { Point }
+  type Wheel struct { Circle }
+  var w Wheel
+  w.X = 8
+  ```
+- the struct field's visible depends its letter-case
+  - uppercase: is exported -> visible outside of the package.
+  - lowercase: is not exported -> only be accessed within the same package.
+
+#### JSON
+
+- only visible fields are visited when encoding/decoding.
+- field's name can be mapped to another name via field tags.
+  ```go
+  type Album {
+    Year int `json:"released"`
+  }
+  ```
