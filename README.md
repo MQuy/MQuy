@@ -1,6 +1,6 @@
 ## Hi 👋
 
-I'm Quy, a full stack engineer who loves recreating things from the scratch and contributing to open source projects.
+I'm Quy, a full stack engineer who love recreating things from the scratch and contributing to open source projects.
 
 ### Highlight Projects
 
@@ -21,5 +21,4 @@ I'm Quy, a full stack engineer who loves recreating things from the scratch and 
 
 - [https://github.com/MQuy](https://github.com/MQuy).
 - [https://twitter.com/MQuy90](https://twitter.com/MQuy90).
-- [https://www.linkedin.com/in/quy-truong-71b21542/](https://www.linkedin.com/in/quy-truong-71b21542/).
 - [https://ko-fi.com/mquy90](https://ko-fi.com/mquy90).
