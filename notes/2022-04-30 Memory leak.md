@@ -6,7 +6,7 @@ There are usually 4 type of leaks
 - Detached window: The popup window was closed, but our code (main page) has a reference to it.
 - Accidental global variable: GC doesn't claim back a global variable except we explicitly force a browser to do (via setting it `null/undefined`).
 - Event listener: a browser only remove an event listener if either you explicitly remove it (`removeEventListener`) or the associated DOM element is removed. That listener function is kept there together with what it keeps in its scope.
-- Timer
+- Timer.
 
 ### Using Chrome
 
