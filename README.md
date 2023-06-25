@@ -10,13 +10,6 @@ I'm Quy, a full stack engineer who love recreating things from the scratch and c
 - [qReact](https://github.com/MQuy/qreact) — the dead simple re-implementation of React 15.x and React 16.0.
 - [Webpack deadcode plugin](https://github.com/MQuy/webpack-deadcode-plugin) — Webpack plugin to detect unused files and unused exports in used files.
 
-### Works
-
-- Full Stack Engineer at [Bokio](https://www.bokio.se/), Sweden.
-- Software Engineer at [Employment Hero](https://employmenthero.com/), Vietnam
-- Software Engineer at RingMD, Vietnam.
-- Software Engineer at Deekau, Vietnam.
-
 ### Social Networks
 
 - [https://github.com/MQuy](https://github.com/MQuy).
